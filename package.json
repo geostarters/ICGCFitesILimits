@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "lint": "eslint --fix --cache --ignore-path .gitignore src",
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest"
   },
@@ -15,6 +16,8 @@
   },
   "devDependencies": {
     "babel-jest": "23.6.0",
+    "eslint-config-geostart": "git+https://github.com/geostarters/eslint-config-geostart.git",
+    "eslint-plugin-react": "^7.11.1",
     "jest": "23.6.0",
     "metro-react-native-babel-preset": "0.50.0",
     "react-test-renderer": "16.6.1"

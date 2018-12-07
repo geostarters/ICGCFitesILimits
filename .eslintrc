@@ -1,0 +1,10 @@
+{
+	"extends": [
+	  "geostart",
+	  "plugin:react/recommended"
+	],
+	"parserOptions": {
+		"sourceType": "module"
+	  }
+  }
+  

@@ -1,9 +1,10 @@
-import { StyleSheet } from 'react-native';
+// @flow
+import { StyleSheet } from "react-native";
 
-let styles = {};
+const styles = {};
 
 styles.matchParent = {
-  flex: 1,
+	flex: 1,
 };
 
 export default StyleSheet.create(styles);

@@ -4,11 +4,13 @@ import { View } from "react-native";
 import { Map } from "icgc-react-native-components";
 import MapboxGL from "@mapbox/react-native-mapbox-gl";
 import ProgressDialog from "./ProgressDialog";
-import DownloadMapDialog from "./DownloadMapDialog";
+import QuestionDialog from "./QuestionDialog";
 import { MapboxToken, DownloadableArea } from "../constants";
 
 // styles
 import sheet from "../styles/sheet";
+
+MapboxGL.setAccessToken(MapboxToken);
 
 class MapPage extends React.Component {
 
@@ -21,13 +23,22 @@ class MapPage extends React.Component {
 			name: this.offlinePackName,
 			offlineRegion: null,
 			offlineRegionStatus: null,
-			isMapDownloaded: (await MapboxGL.offlineManager.getPack(this.offlinePackName) !== undefined)
-			isMapDownloading: false
+			isMapDownloaded: false,
+			isMapDownloading: false,
+			showDownloadQuestion: false
 		};
 	
 		this.onDownloadProgress = this.onDownloadProgress.bind(this);
 
-	  }
+		console.log("MapPage constructor???", MapboxGL);
+		MapboxGL.getAccessToken().then((val) => console.log("AT1", val), () => console.log("AT2", val));
+		MapboxGL.offlineManager.getPack(this.offlinePackName).then(
+			(val) => { console.log("1", val); this.setState({isMapDownloaded: true}) }, 
+			(val) => { console.log("2", val); this.setState({isMapDownloaded: false, showDownloadQuestion: true}) }
+		);
+		console.log("MapPage constructor!!!");
+
+	}
 
 	componentWillUnmount() {
 		// avoid setState warnings if we back out before we finishing downloading
@@ -65,16 +76,6 @@ class MapPage extends React.Component {
 		throw new Error(JSON.stringify(offlineRegionStatus));
 	
 	}
-
-	formatPercent() {
-
-		if (!this.state.offlineRegionStatus) {
-			return '0%';
-		}
-		
-		return Math.round(this.state.offlineRegionStatus.percentage / 10) / 10;
-	
-	}
 	
 	onResume() {
 
@@ -92,6 +93,26 @@ class MapPage extends React.Component {
 	
 	}
 
+	onStop() {
+		
+		if(this.state.offlineRegion) {
+			this.state.offlineRegion.stop();
+		}
+	}
+
+	downloadMap() {
+
+		this.onStartDownload();
+		this.setState({ isMapDownloading: true });
+
+	}
+
+	hideQuestionDialog() {
+
+		this.setState({ showDownloadQuestion: false });
+
+	}
+
 	render() {
 
 		return (
@@ -106,16 +127,33 @@ class MapPage extends React.Component {
 					mapboxToken={ MapboxToken }
 					style={sheet.matchParent}
 				/>
-				{ !this.state.isMapDownloaded && 
-					!this.state.isMapDownloading && 
-					<DownloadMapDialog />
+				{ this.state.showDownloadQuestion &&
+					<QuestionDialog 
+						isModal={true}
+						showTitle={false}
+						acceptButtonText="Sí"
+						cancelButtonText="No"
+						acceptButtonPressed={ () => this.downloadMap() }
+						cancelButtonPressed={ () => this.hideQuestionDialog() }
+					>
+						Vols descarregar el mapa per utilitzar-lo sense connexió?
+					</QuestionDialog>
 				}
 				{ this.state.offlineRegionStatus !== null && 
 					this.state.isMapDownloading &&
 					<ProgressDialog 
-						offlineRegion={ this.state.offlineRegionStatus }
+						percentage={ this.state.offlineRegionStatus.status.percentage }
 						onPause={ () => this.onPause() }
 						onResume={ () => this.onResume() }
+						progressTitle="Estat de descàrrega"
+						progressSubtext="Percentatge"
+						resumeButtonText="Reprèn"
+						pauseButtonText="Pausa"
+						stopButtonText="Atura"
+						activeStatusText="Activa"
+						inactiveStatusText="Inactiva"
+						completeStatusText="Completa"
+						showStopButton={true}
 					/>
 				}
 			</View>

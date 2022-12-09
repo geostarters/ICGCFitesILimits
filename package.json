@@ -12,7 +12,7 @@
     "icgc-react-native-components": "git+https://github.com/geostarters/icgc-react-native-components.git#dev",
     "mapbox": "^1.0.0-beta9",
     "react": "16.6.1",
-    "react-native": "^0.62.3"
+    "react-native": "^0.70.6"
   },
   "devDependencies": {
     "babel-jest": "23.6.0",
